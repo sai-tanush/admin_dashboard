@@ -13,13 +13,12 @@ body {
 }
 
 @theme {
-    
+
 }
 
 @layer utilities{
 
 }
-
 
 @theme inline {
     --radius-sm: calc(var(--radius) - 4px);
@@ -136,7 +135,6 @@ body {
     @apply bg-background text-foreground;
     }
 }
-
 
 /* Color-Schema
     --color-primary: #26a772;
