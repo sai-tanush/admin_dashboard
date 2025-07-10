@@ -8,7 +8,7 @@ import {
   SidebarProvider,
 } from "@/components/ui/sidebar"
 
-import data from "@/data/dashboard-data"
+import { dashboardItems } from "@/data/dashboard-data"
 import { SiteHeader } from "@/components/site-header"
 
 export default function Layout() {
@@ -31,7 +31,7 @@ export default function Layout() {
               <div className="px-4 lg:px-6">
                 <ChartAreaInteractive />
               </div>
-              <DataTable data={data} />
+              <DataTable data={dashboardItems} />
             </div>
           </div>
         </div>
