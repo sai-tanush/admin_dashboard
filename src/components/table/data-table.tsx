@@ -205,7 +205,8 @@ export function DataTable({
 
   const isFiltered = table.getState().columnFilters.length > 0
 
-  const tbodyRef = React.useRef<HTMLTableSectionElement>(null)
+  const tbodyRef = React.useRef<HTMLTableSectionElement>(null);
+  const visibleRows = table.getRowModel().rows;
 
   React.useLayoutEffect(() => {
     if (!tbodyRef.current) return
@@ -221,7 +222,7 @@ export function DataTable({
         ease: "power2.out",
       }
     )
-  }, [table.getRowModel().rows])
+  }, [visibleRows])
 
   return (
     <Tabs defaultValue="outline" className="w-full flex-col justify-start gap-6">
@@ -356,7 +357,7 @@ export function DataTable({
             </Button>
           )}
         </div>
-        <div className="overflow-hidden rounded-lg border">
+        <div className="overflow-hidden rounded-lg border min-h-[400px] md:min-h-[500px]">
           <Table>
             <TableHeader className="bg-muted sticky top-0 z-10">
               {table.getHeaderGroups().map((headerGroup) => (
