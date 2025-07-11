@@ -1,5 +1,3 @@
-// src/components/data-table-faceted-filter.tsx
-
 import * as React from "react"
 import { IconCheck, IconCircle } from "@tabler/icons-react"
 import { type Column } from "@tanstack/react-table"
