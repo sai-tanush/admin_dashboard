@@ -1,7 +1,12 @@
 "use client"
 
 import * as React from "react"
+// 1. Import new icons and components needed for filtering and sorting
 import {
+  IconArrowDown,
+  IconArrowUp,
+  IconArrowsSort,
+  IconX,
   IconChevronDown,
   IconChevronLeft,
   IconChevronRight,
@@ -10,6 +15,7 @@ import {
   IconLayoutColumns,
 } from "@tabler/icons-react"
 import {
+  type Column,
   type ColumnDef,
   type ColumnFiltersState,
   flexRender,
@@ -24,6 +30,7 @@ import {
   type VisibilityState,
 } from "@tanstack/react-table"
 import { z } from "zod"
+
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -32,6 +39,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
   Select,
@@ -54,8 +62,36 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs"
+import { DataTableFacetedFilter } from "@/components/table/data-table-faceted-filter"
 import { schema } from "@/data/schema"
 
+// 2. Helper component for creating sortable column headers
+function SortableHeader<TData, TValue>({
+  column,
+  children,
+}: {
+  column: Column<TData, TValue>
+  children: React.ReactNode
+}) {
+  const sort = column.getIsSorted()
+  return (
+    <Button
+      variant="ghost"
+      onClick={() => column.toggleSorting(sort === "asc")}
+    >
+      {children}
+      {sort === "desc" ? (
+        <IconArrowDown className="ml-2 size-4" />
+      ) : sort === "asc" ? (
+        <IconArrowUp className="ml-2 size-4" />
+      ) : (
+        <IconArrowsSort className="ml-2 size-4" />
+      )}
+    </Button>
+  )
+}
+
+// 3. Update column definitions with sorting and filter functions
 const columns: ColumnDef<z.infer<typeof schema>>[] = [
   {
     accessorKey: "username",
@@ -64,7 +100,7 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
   },
   {
     accessorKey: "date",
-    header: "Date",
+    header: ({ column }) => <SortableHeader column={column}>Date</SortableHeader>,
     cell: ({ row }) => {
       const formatted = new Date(row.original.date).toLocaleDateString()
       return formatted
@@ -74,6 +110,9 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
     accessorKey: "warehouse_name",
     header: "Warehouse",
     cell: ({ row }) => row.original.warehouse_name,
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id))
+    },
   },
   {
     accessorKey: "amount",
@@ -81,38 +120,43 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
     cell: ({ row }) => (
       <div className="text-right font-medium">{row.original.amount}</div>
     ),
+    filterFn: (row, id, value) => {
+      const amount = parseFloat(row.getValue(id))
+      const [min, max] = value
+      if (min && amount < min) return false
+      if (max && amount > max) return false
+      return true
+    },
   },
   {
-  accessorKey: "status",
-  header: () => <div className="text-right">Status</div>,
-  cell: ({ row }) => {
-
-    const statusMap: Record<
-      "Done" | "In Process" | "Not Started",
-      { label: string; color: "default" | "warning" | "destructive" | "secondary" | "outline" }
-    > = {
-      Done: { label: "Paid", color: "default" },
-      "In Process": { label: "Pending", color: "warning" },
-      "Not Started": { label: "Failed", color: "destructive" },
-    }
-
-    const status = row.original.status
-
-    const { label, color } =
-      statusMap[status as keyof typeof statusMap] ?? {
-        label: "Unknown",
-        color: "secondary" as const, // explicitly mark as one of the allowed variants
+    accessorKey: "status",
+    header: () => <div className="text-right">Status</div>,
+    cell: ({ row }) => {
+      const statusMap = {
+        Done: { label: "Paid", variant: "default" as const },
+        "In Process": { label: "Pending", variant: "warning" as const },
+        "Not Started": { label: "Failed", variant: "destructive" as const },
       }
-
-    return (
-      <div className="text-right">
-        <Badge variant={color} className="inline-flex items-center text-sm">
-          {label}
-        </Badge>
-      </div>
-    )
+      const { label, variant } = statusMap[row.original.status]
+      return (
+        <div className="text-right">
+          <Badge variant={variant} className="inline-flex items-center text-sm">
+            {label}
+          </Badge>
+        </div>
+      )
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id))
+    },
   },
-}
+]
+
+// 4. Define options for our faceted filters
+const statusOptions = [
+  { value: "Done", label: "Paid" },
+  { value: "In Process", label: "Pending" },
+  { value: "Not Started", label: "Failed" },
 ]
 
 export function DataTable({
@@ -158,25 +202,23 @@ export function DataTable({
     getFacetedUniqueValues: getFacetedUniqueValues(),
   })
 
+  // Get unique warehouse names for the filter options
+  const warehouseOptions = React.useMemo(() => {
+    const uniqueWarehouses = [
+      ...new Set(initialData.map((item) => item.warehouse_name)),
+    ]
+    return uniqueWarehouses.map((w) => ({ value: w, label: w }))
+  }, [initialData])
+
+  const isFiltered = table.getState().columnFilters.length > 0
+
   return (
-    <Tabs defaultValue="outline" className="w-full flex-col justify-start gap-6">
+    <Tabs
+      defaultValue="outline"
+      className="w-full flex-col justify-start gap-6"
+    >
       <div className="flex items-center justify-between px-4 lg:px-6">
-        <Label htmlFor="view-selector" className="sr-only">
-          View
-        </Label>
-        <Select defaultValue="outline">
-          <SelectTrigger
-            className="flex w-fit @4xl/main:hidden"
-            size="sm"
-            id="view-selector"
-          >
-            <SelectValue placeholder="Select a view" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="outline">Recent Transactions</SelectItem>
-          </SelectContent>
-        </Select>
-        <TabsList className="**:data-[slot=badge]:bg-muted-foreground/30 hidden **:data-[slot=badge]:size-5 **:data-[slot=badge]:rounded-full **:data-[slot=badge]:px-1 @4xl/main:flex">
+        <TabsList>
           <TabsTrigger value="outline">Recent Transactions</TabsTrigger>
         </TabsList>
         <div className="flex items-center gap-2">
@@ -184,8 +226,8 @@ export function DataTable({
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm">
                 <IconLayoutColumns />
-                <span className="hidden lg:inline">Filter Columns</span>
-                <span className="lg:hidden">Filter Columns</span>
+                <span className="hidden lg:inline">Columns</span>
+                <span className="lg:hidden">Columns</span>
                 <IconChevronDown />
               </Button>
             </DropdownMenuTrigger>
@@ -206,14 +248,109 @@ export function DataTable({
                       column.toggleVisibility(!!value)
                     }
                   >
-                    {column.id}
+                    {/* Show a more friendly name for warehouse_name */}
+                    {column.id === "warehouse_name" ? "Warehouse" : column.id}
                   </DropdownMenuCheckboxItem>
                 ))}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>
-      <TabsContent value="outline" className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">
+      <TabsContent
+        value="outline"
+        className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6"
+      >
+        {/* 5. THE NEW FILTER TOOLBAR */}
+        <div className="flex flex-wrap items-center gap-2">
+          <Input
+            placeholder="Filter by username..."
+            value={
+              (table.getColumn("username")?.getFilterValue() as string) ?? ""
+            }
+            onChange={(event) =>
+              table.getColumn("username")?.setFilterValue(event.target.value)
+            }
+            className="h-8 w-[150px] lg:w-[250px]"
+          />
+          {table.getColumn("status") && (
+            <DataTableFacetedFilter
+              column={table.getColumn("status")}
+              title="Status"
+              options={statusOptions}
+            />
+          )}
+          {table.getColumn("warehouse_name") && (
+            <DataTableFacetedFilter
+              column={table.getColumn("warehouse_name")}
+              title="Warehouse"
+              options={warehouseOptions}
+            />
+          )}
+          {/* Amount Range Filter */}
+          <div className="flex items-center gap-2">
+            <Input
+              type="number"
+              placeholder="Min amount"
+              className="h-8 w-28"
+              value={
+                (
+                  table.getColumn("amount")?.getFilterValue() as [
+                    number,
+                    number,
+                  ]
+                )?.[0] ?? ""
+              }
+              onChange={(e) => {
+                const value = e.target.value
+                const currentFilter = table
+                  .getColumn("amount")
+                  ?.getFilterValue() as [number, number] | undefined
+                table
+                  .getColumn("amount")
+                  ?.setFilterValue([
+                    value ? Number(value) : undefined,
+                    currentFilter?.[1],
+                  ])
+              }}
+            />
+            <Input
+              type="number"
+              placeholder="Max amount"
+              className="h-8 w-28"
+              value={
+                (
+                  table.getColumn("amount")?.getFilterValue() as [
+                    number,
+                    number,
+                  ]
+                )?.[1] ?? ""
+              }
+              onChange={(e) => {
+                const value = e.target.value
+                const currentFilter = table
+                  .getColumn("amount")
+                  ?.getFilterValue() as [number, number] | undefined
+                table
+                  .getColumn("amount")
+                  ?.setFilterValue([
+                    currentFilter?.[0],
+                    value ? Number(value) : undefined,
+                  ])
+              }}
+            />
+          </div>
+
+          {isFiltered && (
+            <Button
+              variant="ghost"
+              onClick={() => table.resetColumnFilters()}
+              className="h-8 px-2 lg:px-3"
+            >
+              Reset
+              <IconX className="ml-2 size-4" />
+            </Button>
+          )}
+        </div>
         <div className="overflow-hidden rounded-lg border">
           <Table>
             <TableHeader className="bg-muted sticky top-0 z-10">
@@ -241,14 +378,20 @@ export function DataTable({
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
                       </TableCell>
                     ))}
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={columns.length} className="h-24 text-center">
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
                     No results.
                   </TableCell>
                 </TableRow>
@@ -333,15 +476,6 @@ export function DataTable({
             </div>
           </div>
         </div>
-      </TabsContent>
-      <TabsContent value="past-performance" className="flex flex-col px-4 lg:px-6">
-        <div className="aspect-video w-full flex-1 rounded-lg border border-dashed"></div>
-      </TabsContent>
-      <TabsContent value="key-personnel" className="flex flex-col px-4 lg:px-6">
-        <div className="aspect-video w-full flex-1 rounded-lg border border-dashed"></div>
-      </TabsContent>
-      <TabsContent value="focus-documents" className="flex flex-col px-4 lg:px-6">
-        <div className="aspect-video w-full flex-1 rounded-lg border border-dashed"></div>
       </TabsContent>
     </Tabs>
   )
