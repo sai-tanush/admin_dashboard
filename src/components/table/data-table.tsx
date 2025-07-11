@@ -262,7 +262,7 @@ export function DataTable({
       </div>
       <TabsContent
         value="outline"
-        className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6"
+        className="relative flex flex-col gap-4 -mt-2 md:-mt-4 overflow-auto px-4 py-2 lg:px-6"
       >
         <div className="flex flex-wrap items-center gap-2">
           <Input
