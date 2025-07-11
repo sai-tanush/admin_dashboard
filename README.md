@@ -17,14 +17,14 @@ This dashboard is **mobile-first**, **theme-aware** (light/dark), and optimized 
 Follow these steps to set up and run the project locally:- 
 
 1. Install packages
-\`\`\`bash
+```
 npm install
-\`\`\`
+```
 
 2. Start your local server
-\`\`\`bash
+```
 npm run dev
-\`\`\`
+```
 
 ---
 
