@@ -1,7 +1,7 @@
-import { AppSidebar } from "@/components/app-sidebar"
-import { ChartAreaInteractive } from "@/components/chart-area-interactive"
-import { DataTable } from "@/components/data-table"
-import { SectionCards } from "@/components/section-cards"
+import { AppSidebar } from "@/components/layout/app-sidebar"
+import { ChartAreaInteractive } from "@/components/charts/chart-area-interactive"
+import { DataTable } from "@/components/table/data-table"
+import { SectionCards } from "@/components/layout/section-cards"
 
 import {
   SidebarInset,
@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/sidebar"
 
 import { dashboardItems } from "@/data/dashboard-data"
-import { SiteHeader } from "@/components/site-header"
+import { SiteHeader } from "@/components/layout/site-header"
 
 export default function Layout() {
   return (

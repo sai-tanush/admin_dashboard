@@ -1,4 +1,6 @@
-export const dashboardItems = [
+import { z } from "zod"
+import type { schema } from "./schema";
+export const dashboardItems: Array<z.infer<typeof schema>> = [
   {
     "id": 1,
     "username": "Olivia Johnson",

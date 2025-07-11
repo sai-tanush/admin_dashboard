@@ -6,5 +6,5 @@ export const schema = z.object({
   date: z.string(),
   warehouse_name: z.string(),
   amount: z.number(),
-  status: z.enum(["Done", "In Process", "Pending"]),
+  status: z.enum(["Done", "In Process", "Not Started"]),
 })
