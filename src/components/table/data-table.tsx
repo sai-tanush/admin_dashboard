@@ -57,8 +57,6 @@ import {
 import {
   Tabs,
   TabsContent,
-  TabsList,
-  TabsTrigger,
 } from "@/components/ui/tabs"
 import { DataTableFacetedFilter } from "@/components/table/data-table-faceted-filter"
 import { schema } from "@/data/schema"
@@ -225,9 +223,9 @@ export function DataTable({
   return (
     <Tabs defaultValue="outline" className="w-full flex-col justify-start gap-6">
       <div className="flex items-center justify-between px-4 lg:px-6">
-        <TabsList>
-          <TabsTrigger value="outline">Recent Transactions</TabsTrigger>
-        </TabsList>
+        <div className="px-2">
+          <p className="text-2xl">Recent Transactions</p>
+        </div>
         <div className="flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -275,7 +273,7 @@ export function DataTable({
             onChange={(event) =>
               table.getColumn("username")?.setFilterValue(event.target.value)
             }
-            className="h-8 w-[150px] lg:w-[250px]"
+            className="h-8 w-[150px] lg:w-[250px] bg-muted"
           />
           {table.getColumn("status") && (
             <DataTableFacetedFilter
@@ -295,7 +293,7 @@ export function DataTable({
             <Input
               type="number"
               placeholder="Min amount"
-              className="h-8 w-28"
+              className="h-8 w-28 bg-muted"
               value={
                 (
                   table.getColumn("amount")?.getFilterValue() as [
@@ -320,7 +318,7 @@ export function DataTable({
             <Input
               type="number"
               placeholder="Max amount"
-              className="h-8 w-28"
+              className="h-8 w-28 bg-muted"
               value={
                 (
                   table.getColumn("amount")?.getFilterValue() as [
@@ -357,7 +355,7 @@ export function DataTable({
         </div>
         <div className="overflow-hidden rounded-lg border min-h-[400px] md:min-h-[500px]">
           <Table>
-            <TableHeader className="bg-gray-300 sticky top-0 z-10">
+            <TableHeader className="bg-muted sticky top-0 z-10">
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => (
