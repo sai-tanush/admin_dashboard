@@ -221,7 +221,7 @@ export function DataTable({
   }, [visibleRows])
 
   return (
-    <Tabs defaultValue="outline" className="w-full flex-col justify-start gap-6">
+    <Tabs defaultValue="outline" className="w-full flex-col justify-start gap-6 mt-4">
       <div className="flex items-center justify-between px-4 lg:px-6">
         <div className="px-2">
           <p className="text-2xl">Recent Transactions</p>
