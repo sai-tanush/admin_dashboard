@@ -16,7 +16,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar"
 
 export function SiteHeader() {
   return (
-    <header className="flex h-[var(--header-height)] shrink-0 items-center gap-2 border-b px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-[var(--header-height)] lg:px-6">
+    <header className="flex h-[var(--header-height)] bg-white shrink-0 items-center gap-2 border-b px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-[var(--header-height)] lg:px-6">
       {/* Left side: Sidebar Trigger and Title */}
       <div className="flex items-center">
         <SidebarTrigger className="-ml-1" />
