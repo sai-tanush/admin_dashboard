@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-// 1. Import new icons and components needed for filtering and sorting
+import gsap from "gsap"
 import {
   IconArrowDown,
   IconArrowUp,
@@ -65,7 +65,7 @@ import {
 import { DataTableFacetedFilter } from "@/components/table/data-table-faceted-filter"
 import { schema } from "@/data/schema"
 
-// 2. Helper component for creating sortable column headers
+// Helper component for sortable headers
 function SortableHeader<TData, TValue>({
   column,
   children,
@@ -91,7 +91,7 @@ function SortableHeader<TData, TValue>({
   )
 }
 
-// 3. Update column definitions with sorting and filter functions
+// Table columns
 const columns: ColumnDef<z.infer<typeof schema>>[] = [
   {
     accessorKey: "username",
@@ -152,7 +152,6 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
   },
 ]
 
-// 4. Define options for our faceted filters
 const statusOptions = [
   { value: "Done", label: "Paid" },
   { value: "In Process", label: "Pending" },
@@ -166,11 +165,8 @@ export function DataTable({
 }) {
   const [data] = React.useState(() => initialData)
   const [rowSelection, setRowSelection] = React.useState({})
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({})
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  )
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [pagination, setPagination] = React.useState({
     pageIndex: 0,
@@ -202,21 +198,33 @@ export function DataTable({
     getFacetedUniqueValues: getFacetedUniqueValues(),
   })
 
-  // Get unique warehouse names for the filter options
   const warehouseOptions = React.useMemo(() => {
-    const uniqueWarehouses = [
-      ...new Set(initialData.map((item) => item.warehouse_name)),
-    ]
-    return uniqueWarehouses.map((w) => ({ value: w, label: w }))
+    const unique = [...new Set(initialData.map((d) => d.warehouse_name))]
+    return unique.map((w) => ({ value: w, label: w }))
   }, [initialData])
 
   const isFiltered = table.getState().columnFilters.length > 0
 
+  const tbodyRef = React.useRef<HTMLTableSectionElement>(null)
+
+  React.useLayoutEffect(() => {
+    if (!tbodyRef.current) return
+    const rows = tbodyRef.current.querySelectorAll("tr")
+    gsap.fromTo(
+      rows,
+      { autoAlpha: 0, y: 10 },
+      {
+        autoAlpha: 1,
+        y: 0,
+        duration: 0.4,
+        stagger: 0.05,
+        ease: "power2.out",
+      }
+    )
+  }, [table.getRowModel().rows])
+
   return (
-    <Tabs
-      defaultValue="outline"
-      className="w-full flex-col justify-start gap-6"
-    >
+    <Tabs defaultValue="outline" className="w-full flex-col justify-start gap-6">
       <div className="flex items-center justify-between px-4 lg:px-6">
         <TabsList>
           <TabsTrigger value="outline">Recent Transactions</TabsTrigger>
@@ -248,7 +256,6 @@ export function DataTable({
                       column.toggleVisibility(!!value)
                     }
                   >
-                    {/* Show a more friendly name for warehouse_name */}
                     {column.id === "warehouse_name" ? "Warehouse" : column.id}
                   </DropdownMenuCheckboxItem>
                 ))}
@@ -260,7 +267,6 @@ export function DataTable({
         value="outline"
         className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6"
       >
-        {/* 5. THE NEW FILTER TOOLBAR */}
         <div className="flex flex-wrap items-center gap-2">
           <Input
             placeholder="Filter by username..."
@@ -286,7 +292,6 @@ export function DataTable({
               options={warehouseOptions}
             />
           )}
-          {/* Amount Range Filter */}
           <div className="flex items-center gap-2">
             <Input
               type="number"
@@ -369,7 +374,7 @@ export function DataTable({
                 </TableRow>
               ))}
             </TableHeader>
-            <TableBody>
+            <TableBody ref={tbodyRef}>
               {table.getRowModel().rows.length ? (
                 table.getRowModel().rows.map((row) => (
                   <TableRow
