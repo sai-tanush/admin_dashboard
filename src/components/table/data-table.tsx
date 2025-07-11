@@ -57,8 +57,6 @@ import {
 import {
   Tabs,
   TabsContent,
-  TabsList,
-  TabsTrigger,
 } from "@/components/ui/tabs"
 import { DataTableFacetedFilter } from "@/components/table/data-table-faceted-filter"
 import { schema } from "@/data/schema"
@@ -223,11 +221,11 @@ export function DataTable({
   }, [visibleRows])
 
   return (
-    <Tabs defaultValue="outline" className="w-full flex-col justify-start gap-6">
+    <Tabs defaultValue="outline" className="w-full flex-col justify-start gap-6 mt-4">
       <div className="flex items-center justify-between px-4 lg:px-6">
-        <TabsList>
-          <TabsTrigger value="outline">Recent Transactions</TabsTrigger>
-        </TabsList>
+        <div className="px-2">
+          <p className="text-2xl">Recent Transactions</p>
+        </div>
         <div className="flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -264,7 +262,7 @@ export function DataTable({
       </div>
       <TabsContent
         value="outline"
-        className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6"
+        className="relative flex flex-col gap-4 -mt-2 md:-mt-4 overflow-auto px-4 py-2 lg:px-6"
       >
         <div className="flex flex-wrap items-center gap-2">
           <Input
@@ -275,7 +273,7 @@ export function DataTable({
             onChange={(event) =>
               table.getColumn("username")?.setFilterValue(event.target.value)
             }
-            className="h-8 w-[150px] lg:w-[250px]"
+            className="h-8 w-[150px] lg:w-[250px] bg-muted"
           />
           {table.getColumn("status") && (
             <DataTableFacetedFilter
@@ -295,7 +293,7 @@ export function DataTable({
             <Input
               type="number"
               placeholder="Min amount"
-              className="h-8 w-28"
+              className="h-8 w-28 bg-muted"
               value={
                 (
                   table.getColumn("amount")?.getFilterValue() as [
@@ -320,7 +318,7 @@ export function DataTable({
             <Input
               type="number"
               placeholder="Max amount"
-              className="h-8 w-28"
+              className="h-8 w-28 bg-muted"
               value={
                 (
                   table.getColumn("amount")?.getFilterValue() as [

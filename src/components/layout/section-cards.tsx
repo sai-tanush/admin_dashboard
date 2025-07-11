@@ -1,5 +1,13 @@
-import { IconTrendingDown, IconTrendingUp } from "@tabler/icons-react"
-import { Area, AreaChart, ResponsiveContainer } from "recharts"
+import {
+  IconTrendingDown,
+  IconTrendingUp,
+} from "@tabler/icons-react"
+import {
+  Area,
+  AreaChart,
+  ResponsiveContainer,
+  Tooltip,
+} from "recharts"
 
 import { Badge } from "@/components/ui/badge"
 import {
@@ -53,8 +61,10 @@ const growthData = [
   { value: 4.5 },
 ]
 
-const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#26a772';
-const destructiveColor = getComputedStyle(document.documentElement).getPropertyValue('--destructive').trim() || '#e7000b';
+const primaryColor =
+  getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#26a772'
+const destructiveColor =
+  getComputedStyle(document.documentElement).getPropertyValue('--destructive').trim() || '#e7000b'
 
 export function SectionCards() {
   return (
@@ -75,24 +85,21 @@ export function SectionCards() {
         </CardHeader>
         <CardContent className="h-20 p-0">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart
-              data={revenueData}
-              margin={{ top: 0, right: 0, left: 0, bottom: 0 }}
-            >
+            <AreaChart data={revenueData}>
               <defs>
                 <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                  <stop
-                    offset="5%"
-                    stopColor={primaryColor}
-                    stopOpacity={0.4}
-                  />
-                  <stop
-                    offset="95%"
-                    stopColor={primaryColor}
-                    stopOpacity={0}
-                  />
+                  <stop offset="5%" stopColor={primaryColor} stopOpacity={0.4} />
+                  <stop offset="95%" stopColor={primaryColor} stopOpacity={0} />
                 </linearGradient>
               </defs>
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "var(--card)",
+                  borderColor: "var(--border)",
+                  fontSize: "0.75rem",
+                }}
+                cursor={{ fill: "var(--muted)" }}
+              />
               <Area
                 type="monotone"
                 dataKey="value"
@@ -121,24 +128,21 @@ export function SectionCards() {
         </CardHeader>
         <CardContent className="h-20 p-0">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart
-              data={customersData}
-              margin={{ top: 0, right: 0, left: 0, bottom: 0 }}
-            >
+            <AreaChart data={customersData}>
               <defs>
                 <linearGradient id="colorCustomers" x1="0" y1="0" x2="0" y2="1">
-                  <stop
-                    offset="5%"
-                    stopColor={destructiveColor}
-                    stopOpacity={0.4}
-                  />
-                  <stop
-                    offset="95%"
-                    stopColor={destructiveColor}
-                    stopOpacity={0}
-                  />
+                  <stop offset="5%" stopColor={destructiveColor} stopOpacity={0.4} />
+                  <stop offset="95%" stopColor={destructiveColor} stopOpacity={0} />
                 </linearGradient>
               </defs>
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "var(--card)",
+                  borderColor: "var(--border)",
+                  fontSize: "0.75rem",
+                }}
+                cursor={{ fill: "var(--muted)" }}
+              />
               <Area
                 type="monotone"
                 dataKey="value"
@@ -167,24 +171,21 @@ export function SectionCards() {
         </CardHeader>
         <CardContent className="h-20 p-0">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart
-              data={usersData}
-              margin={{ top: 0, right: 0, left: 0, bottom: 0 }}
-            >
+            <AreaChart data={usersData}>
               <defs>
                 <linearGradient id="colorUsers" x1="0" y1="0" x2="0" y2="1">
-                  <stop
-                    offset="5%"
-                    stopColor={primaryColor}
-                    stopOpacity={0.4}
-                  />
-                  <stop
-                    offset="95%"
-                    stopColor={primaryColor}
-                    stopOpacity={0}
-                  />
+                  <stop offset="5%" stopColor={primaryColor} stopOpacity={0.4} />
+                  <stop offset="95%" stopColor={primaryColor} stopOpacity={0} />
                 </linearGradient>
               </defs>
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "var(--card)",
+                  borderColor: "var(--border)",
+                  fontSize: "0.75rem",
+                }}
+                cursor={{ fill: "var(--muted)" }}
+              />
               <Area
                 type="monotone"
                 dataKey="value"
@@ -213,24 +214,21 @@ export function SectionCards() {
         </CardHeader>
         <CardContent className="h-20 p-0">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart
-              data={growthData}
-              margin={{ top: 0, right: 0, left: 0, bottom: 0 }}
-            >
+            <AreaChart data={growthData}>
               <defs>
                 <linearGradient id="colorGrowth" x1="0" y1="0" x2="0" y2="1">
-                  <stop
-                    offset="5%"
-                    stopColor={primaryColor}
-                    stopOpacity={0.4}
-                  />
-                  <stop
-                    offset="95%"
-                    stopColor={primaryColor}
-                    stopOpacity={0}
-                  />
+                  <stop offset="5%" stopColor={primaryColor} stopOpacity={0.4} />
+                  <stop offset="95%" stopColor={primaryColor} stopOpacity={0} />
                 </linearGradient>
               </defs>
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "var(--card)",
+                  borderColor: "var(--border)",
+                  fontSize: "0.75rem",
+                }}
+                cursor={{ fill: "var(--muted)" }}
+              />
               <Area
                 type="monotone"
                 dataKey="value"
