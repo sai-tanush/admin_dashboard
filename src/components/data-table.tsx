@@ -7,9 +7,7 @@ import {
   IconChevronRight,
   IconChevronsLeft,
   IconChevronsRight,
-  IconCircleCheckFilled,
   IconLayoutColumns,
-  IconLoader,
 } from "@tabler/icons-react"
 import {
   type ColumnDef,
@@ -85,21 +83,36 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
     ),
   },
   {
-    accessorKey: "status",
-    header: () => <div className="text-right">Status</div>,
-    cell: ({ row }) => (
+  accessorKey: "status",
+  header: () => <div className="text-right">Status</div>,
+  cell: ({ row }) => {
+
+    const statusMap: Record<
+      "Done" | "In Process" | "Not Started",
+      { label: string; color: "default" | "warning" | "destructive" | "secondary" | "outline" }
+    > = {
+      Done: { label: "Paid", color: "default" },
+      "In Process": { label: "Pending", color: "warning" },
+      "Not Started": { label: "Failed", color: "destructive" },
+    }
+
+    const status = row.original.status
+
+    const { label, color } =
+      statusMap[status as keyof typeof statusMap] ?? {
+        label: "Unknown",
+        color: "secondary" as const, // explicitly mark as one of the allowed variants
+      }
+
+    return (
       <div className="text-right">
-        <Badge variant="outline" className="text-muted-foreground px-1.5 inline-flex items-center">
-          {row.original.status === "Done" ? (
-            <IconCircleCheckFilled className="fill-green-500 dark:fill-green-400 mr-1" />
-          ) : (
-            <IconLoader className="mr-1 animate-spin" />
-          )}
-          {row.original.status}
+        <Badge variant={color} className="inline-flex items-center text-sm">
+          {label}
         </Badge>
       </div>
-    ),
+    )
   },
+}
 ]
 
 export function DataTable({
