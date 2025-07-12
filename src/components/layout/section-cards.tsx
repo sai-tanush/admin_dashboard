@@ -20,46 +20,62 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-// --- Sample data for our mini charts with weekly dates ---
+type ChartData = { date: string; value: number };
+
+function formatDate(dateStr: string) {
+  const date = new Date(dateStr);
+  const day = date.getDate();
+  const month = date.toLocaleString("default", { month: "short" });
+  const suffix =
+    day === 1 || day === 21 || day === 31
+      ? "st"
+      : day === 2 || day === 22
+      ? "nd"
+      : day === 3 || day === 23
+      ? "rd"
+      : "th";
+  return `${day}${suffix} ${month}`;
+}
+
 const revenueData = [
-  { value: 300, date: "2025-05-18" },
-  { value: 450, date: "2025-05-25" },
-  { value: 500, date: "2025-06-01" },
-  { value: 400, date: "2025-06-08" },
-  { value: 600, date: "2025-06-15" },
-  { value: 750, date: "2025-06-22" },
-  { value: 800, date: "2025-06-29" },
-  { value: 1250, date: "2025-07-06" },
+  { date: "2025-05-25", value: 300 },
+  { date: "2025-06-01", value: 450 },
+  { date: "2025-06-08", value: 500 },
+  { date: "2025-06-15", value: 400 },
+  { date: "2025-06-22", value: 600 },
+  { date: "2025-06-29", value: 750 },
+  { date: "2025-07-06", value: 800 },
+  { date: "2025-07-13", value: 1250 },
 ];
 
 const customersData = [
-  { value: 1500, date: "2025-05-25" },
-  { value: 1400, date: "2025-06-01" },
-  { value: 1600, date: "2025-06-08" },
-  { value: 1700, date: "2025-06-15" },
-  { value: 1450, date: "2025-06-22" },
-  { value: 1300, date: "2025-06-29" },
-  { value: 1234, date: "2025-07-06" },
+  { date: "2025-05-25", value: 1500 },
+  { date: "2025-06-01", value: 1400 },
+  { date: "2025-06-08", value: 1600 },
+  { date: "2025-06-15", value: 1700 },
+  { date: "2025-06-22", value: 1450 },
+  { date: "2025-06-29", value: 1300 },
+  { date: "2025-07-06", value: 1234 },
 ];
 
 const usersData = [
-  { value: 30000, date: "2025-05-25" },
-  { value: 32000, date: "2025-06-01" },
-  { value: 35000, date: "2025-06-08" },
-  { value: 38000, date: "2025-06-15" },
-  { value: 40000, date: "2025-06-22" },
-  { value: 42000, date: "2025-06-29" },
-  { value: 45678, date: "2025-07-06" },
+  { date: "2025-05-25", value: 30000 },
+  { date: "2025-06-01", value: 32000 },
+  { date: "2025-06-08", value: 35000 },
+  { date: "2025-06-15", value: 38000 },
+  { date: "2025-06-22", value: 40000 },
+  { date: "2025-06-29", value: 42000 },
+  { date: "2025-07-06", value: 45678 },
 ];
 
 const growthData = [
-  { value: 2.1, date: "2025-05-25" },
-  { value: 2.5, date: "2025-06-01" },
-  { value: 3.0, date: "2025-06-08" },
-  { value: 2.8, date: "2025-06-15" },
-  { value: 3.5, date: "2025-06-22" },
-  { value: 4.0, date: "2025-06-29" },
-  { value: 4.5, date: "2025-07-06" },
+  { date: "2025-05-25", value: 2.1 },
+  { date: "2025-06-01", value: 2.5 },
+  { date: "2025-06-08", value: 3.0 },
+  { date: "2025-06-15", value: 2.8 },
+  { date: "2025-06-22", value: 3.5 },
+  { date: "2025-06-29", value: 4.0 },
+  { date: "2025-07-06", value: 4.5 },
 ];
 
 const primaryColor =
@@ -67,10 +83,48 @@ const primaryColor =
 const destructiveColor =
   getComputedStyle(document.documentElement).getPropertyValue('--destructive').trim() || '#e7000b';
 
+function renderChart(data: ChartData[], color: string, gradientId: string) {
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      <AreaChart data={data} margin={{ left: 16, right: 16 }}>
+        <defs>
+          <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%" stopColor={color} stopOpacity={0.4} />
+            <stop offset="95%" stopColor={color} stopOpacity={0} />
+          </linearGradient>
+        </defs>
+        <XAxis
+          dataKey="date"
+          scale="band"
+          fontSize={10}
+          tickLine={false}
+          axisLine={false}
+          tickFormatter={formatDate}
+        />
+        <Tooltip
+          labelFormatter={(date) => `Week of ${formatDate(date)}`}
+          contentStyle={{
+            backgroundColor: "var(--card)",
+            borderColor: "var(--border)",
+            fontSize: "0.75rem",
+          }}
+          cursor={{ fill: "var(--muted)" }}
+        />
+        <Area
+          type="monotone"
+          dataKey="value"
+          strokeWidth={2}
+          stroke={color}
+          fill={`url(#${gradientId})`}
+        />
+      </AreaChart>
+    </ResponsiveContainer>
+  );
+}
+
 export function SectionCards() {
   return (
     <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
-      {/* Card 1: Total Revenue */}
       <Card className="@container/card">
         <CardHeader>
           <CardDescription>Total Revenue</CardDescription>
@@ -84,38 +138,11 @@ export function SectionCards() {
             </Badge>
           </CardAction>
         </CardHeader>
-        <CardContent className="h-24 p-0">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={revenueData}>
-              <defs>
-                <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={primaryColor} stopOpacity={0.4} />
-                  <stop offset="95%" stopColor={primaryColor} stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <XAxis dataKey="date" fontSize={10} tickLine={false} axisLine={false} />
-              <Tooltip
-                labelFormatter={(date) => `${new Date(date).toLocaleDateString()}`}
-                contentStyle={{
-                  backgroundColor: "var(--card)",
-                  borderColor: "var(--border)",
-                  fontSize: "0.75rem",
-                }}
-                cursor={{ fill: "var(--muted)" }}
-              />
-              <Area
-                type="monotone"
-                dataKey="value"
-                strokeWidth={2}
-                stroke={primaryColor}
-                fill="url(#colorRevenue)"
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+        <CardContent className="h-20 p-0">
+          {renderChart(revenueData, primaryColor, "colorRevenue")}
         </CardContent>
       </Card>
 
-      {/* Card 2: New Customers */}
       <Card className="@container/card">
         <CardHeader>
           <CardDescription>New Customers</CardDescription>
@@ -129,38 +156,11 @@ export function SectionCards() {
             </Badge>
           </CardAction>
         </CardHeader>
-        <CardContent className="h-24 p-0">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={customersData}>
-              <defs>
-                <linearGradient id="colorCustomers" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={destructiveColor} stopOpacity={0.4} />
-                  <stop offset="95%" stopColor={destructiveColor} stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <XAxis dataKey="date" fontSize={10} tickLine={false} axisLine={false} />
-              <Tooltip
-                labelFormatter={(date) => `${new Date(date).toLocaleDateString()}`}
-                contentStyle={{
-                  backgroundColor: "var(--card)",
-                  borderColor: "var(--border)",
-                  fontSize: "0.75rem",
-                }}
-                cursor={{ fill: "var(--muted)" }}
-              />
-              <Area
-                type="monotone"
-                dataKey="value"
-                strokeWidth={2}
-                stroke={destructiveColor}
-                fill="url(#colorCustomers)"
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+        <CardContent className="h-20 p-0">
+          {renderChart(customersData, destructiveColor, "colorCustomers")}
         </CardContent>
       </Card>
 
-      {/* Card 3: Total Users */}
       <Card className="@container/card">
         <CardHeader>
           <CardDescription>Total Users</CardDescription>
@@ -174,38 +174,11 @@ export function SectionCards() {
             </Badge>
           </CardAction>
         </CardHeader>
-        <CardContent className="h-24 p-0">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={usersData}>
-              <defs>
-                <linearGradient id="colorUsers" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={primaryColor} stopOpacity={0.4} />
-                  <stop offset="95%" stopColor={primaryColor} stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <XAxis dataKey="date" fontSize={10} tickLine={false} axisLine={false} />
-              <Tooltip
-                labelFormatter={(date) => `${new Date(date).toLocaleDateString()}`}
-                contentStyle={{
-                  backgroundColor: "var(--card)",
-                  borderColor: "var(--border)",
-                  fontSize: "0.75rem",
-                }}
-                cursor={{ fill: "var(--muted)" }}
-              />
-              <Area
-                type="monotone"
-                dataKey="value"
-                strokeWidth={2}
-                stroke={primaryColor}
-                fill="url(#colorUsers)"
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+        <CardContent className="h-20 p-0">
+          {renderChart(usersData, primaryColor, "colorUsers")}
         </CardContent>
       </Card>
 
-      {/* Card 4: Growth Rate */}
       <Card className="@container/card">
         <CardHeader>
           <CardDescription>Growth Rate</CardDescription>
@@ -219,34 +192,8 @@ export function SectionCards() {
             </Badge>
           </CardAction>
         </CardHeader>
-        <CardContent className="h-24 p-0">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={growthData}>
-              <defs>
-                <linearGradient id="colorGrowth" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={primaryColor} stopOpacity={0.4} />
-                  <stop offset="95%" stopColor={primaryColor} stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <XAxis dataKey="date" fontSize={10} tickLine={false} axisLine={false} />
-              <Tooltip
-                labelFormatter={(date) => `${new Date(date).toLocaleDateString()}`}
-                contentStyle={{
-                  backgroundColor: "var(--card)",
-                  borderColor: "var(--border)",
-                  fontSize: "0.75rem",
-                }}
-                cursor={{ fill: "var(--muted)" }}
-              />
-              <Area
-                type="monotone"
-                dataKey="value"
-                strokeWidth={2}
-                stroke={primaryColor}
-                fill="url(#colorGrowth)"
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+        <CardContent className="h-20 p-0">
+          {renderChart(growthData, primaryColor, "colorGrowth")}
         </CardContent>
       </Card>
     </div>
