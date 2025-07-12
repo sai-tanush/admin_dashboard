@@ -16,12 +16,18 @@ This dashboard is **mobile-first**, **theme-aware** (light/dark), and optimized 
 
 Follow these steps to set up and run the project locally:- 
 
-1. Install packages
+
+1. Upgrade your node version >=20
+```
+nvm use 20
+```
+
+2. Install packages
 ```
 npm install
 ```
 
-2. Start your local server
+3. Start your local server
 ```
 npm run dev
 ```
