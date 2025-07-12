@@ -1,5 +1,8 @@
 import * as React from "react"
-import { IconCheck, IconCircle } from "@tabler/icons-react"
+import {
+  TbCheck,
+  TbCircle,
+} from "react-icons/tb";
 import { type Column } from "@tanstack/react-table"
 
 import { cn } from "@/lib/utils"
@@ -45,7 +48,7 @@ export function DataTableFacetedFilter<TData, TValue>({
     <Popover>
       <PopoverTrigger asChild>
         <Button variant="outline" size="sm" className="h-8 border-dashed">
-          <IconCircle className="mr-2 size-4" />
+          <TbCircle className="mr-2 size-4" />
           {title}
           {/* Show a badge with the number of selected filters */}
           {selectedValues?.size > 0 && (
@@ -116,7 +119,7 @@ export function DataTableFacetedFilter<TData, TValue>({
                           : "opacity-50 [&_svg]:invisible"
                       )}
                     >
-                      <IconCheck className={cn("size-4")} />
+                      <TbCheck className={cn("size-4")} />
                     </div>
                     {option.icon && (
                       <option.icon className="mr-2 size-4 text-muted-foreground" />

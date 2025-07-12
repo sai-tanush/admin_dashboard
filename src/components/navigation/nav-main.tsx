@@ -1,4 +1,7 @@
-import { IconCirclePlusFilled, IconMail, type Icon } from "@tabler/icons-react"
+import {
+  TbCirclePlusFilled,
+  TbMail,
+} from "react-icons/tb";
 
 import { Button } from "@/components/ui/button"
 import {
@@ -15,7 +18,7 @@ export function NavMain({
   items: {
     title: string
     url: string
-    icon?: Icon
+    icon?: React.ElementType
   }[]
 }) {
   return (
@@ -27,7 +30,7 @@ export function NavMain({
               tooltip="Quick Create"
               className="bg-primary text-background hover:bg-primary/90 hover:text-background/90 active:bg-primary/90 active:text-primary-foreground min-w-8 duration-200 ease-linear cursor-pointer"
             >
-              <IconCirclePlusFilled />
+              <TbCirclePlusFilled />
               <span>Add Warehouse</span>
             </SidebarMenuButton>
             <Button
@@ -35,7 +38,7 @@ export function NavMain({
               className="size-8 group-data-[collapsible=icon]:opacity-0"
               variant="outline"
             >
-              <IconMail />
+              <TbMail />
               <span className="sr-only">Inbox</span>
             </Button>
           </SidebarMenuItem>

@@ -1,5 +1,4 @@
 import * as React from "react"
-import { type Icon } from "@tabler/icons-react"
 
 import {
   SidebarGroup,
@@ -16,7 +15,7 @@ export function NavSecondary({
   items: {
     title: string
     url: string
-    icon: Icon
+    icon: React.ElementType
   }[]
 } & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
   return (
