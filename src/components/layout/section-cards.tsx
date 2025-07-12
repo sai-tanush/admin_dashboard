@@ -7,9 +7,10 @@ import {
   AreaChart,
   ResponsiveContainer,
   Tooltip,
-} from "recharts"
+  XAxis,
+} from "recharts";
 
-import { Badge } from "@/components/ui/badge"
+import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardAction,
@@ -17,54 +18,54 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 
-// --- Sample data for our mini charts ---
+// --- Sample data for our mini charts with weekly dates ---
 const revenueData = [
-  { value: 300 },
-  { value: 450 },
-  { value: 500 },
-  { value: 400 },
-  { value: 600 },
-  { value: 750 },
-  { value: 800 },
-  { value: 1250 },
-]
+  { value: 300, date: "2025-05-18" },
+  { value: 450, date: "2025-05-25" },
+  { value: 500, date: "2025-06-01" },
+  { value: 400, date: "2025-06-08" },
+  { value: 600, date: "2025-06-15" },
+  { value: 750, date: "2025-06-22" },
+  { value: 800, date: "2025-06-29" },
+  { value: 1250, date: "2025-07-06" },
+];
 
 const customersData = [
-  { value: 1500 },
-  { value: 1400 },
-  { value: 1600 },
-  { value: 1700 },
-  { value: 1450 },
-  { value: 1300 },
-  { value: 1234 },
-]
+  { value: 1500, date: "2025-05-25" },
+  { value: 1400, date: "2025-06-01" },
+  { value: 1600, date: "2025-06-08" },
+  { value: 1700, date: "2025-06-15" },
+  { value: 1450, date: "2025-06-22" },
+  { value: 1300, date: "2025-06-29" },
+  { value: 1234, date: "2025-07-06" },
+];
 
 const usersData = [
-  { value: 30000 },
-  { value: 32000 },
-  { value: 35000 },
-  { value: 38000 },
-  { value: 40000 },
-  { value: 42000 },
-  { value: 45678 },
-]
+  { value: 30000, date: "2025-05-25" },
+  { value: 32000, date: "2025-06-01" },
+  { value: 35000, date: "2025-06-08" },
+  { value: 38000, date: "2025-06-15" },
+  { value: 40000, date: "2025-06-22" },
+  { value: 42000, date: "2025-06-29" },
+  { value: 45678, date: "2025-07-06" },
+];
 
 const growthData = [
-  { value: 2.1 },
-  { value: 2.5 },
-  { value: 3.0 },
-  { value: 2.8 },
-  { value: 3.5 },
-  { value: 4.0 },
-  { value: 4.5 },
-]
+  { value: 2.1, date: "2025-05-25" },
+  { value: 2.5, date: "2025-06-01" },
+  { value: 3.0, date: "2025-06-08" },
+  { value: 2.8, date: "2025-06-15" },
+  { value: 3.5, date: "2025-06-22" },
+  { value: 4.0, date: "2025-06-29" },
+  { value: 4.5, date: "2025-07-06" },
+];
 
 const primaryColor =
-  getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#26a772'
+  getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#26a772';
 const destructiveColor =
-  getComputedStyle(document.documentElement).getPropertyValue('--destructive').trim() || '#e7000b'
+  getComputedStyle(document.documentElement).getPropertyValue('--destructive').trim() || '#e7000b';
 
 export function SectionCards() {
   return (
@@ -83,7 +84,7 @@ export function SectionCards() {
             </Badge>
           </CardAction>
         </CardHeader>
-        <CardContent className="h-20 p-0">
+        <CardContent className="h-24 p-0">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={revenueData}>
               <defs>
@@ -92,7 +93,9 @@ export function SectionCards() {
                   <stop offset="95%" stopColor={primaryColor} stopOpacity={0} />
                 </linearGradient>
               </defs>
+              <XAxis dataKey="date" fontSize={10} tickLine={false} axisLine={false} />
               <Tooltip
+                labelFormatter={(date) => `${new Date(date).toLocaleDateString()}`}
                 contentStyle={{
                   backgroundColor: "var(--card)",
                   borderColor: "var(--border)",
@@ -126,7 +129,7 @@ export function SectionCards() {
             </Badge>
           </CardAction>
         </CardHeader>
-        <CardContent className="h-20 p-0">
+        <CardContent className="h-24 p-0">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={customersData}>
               <defs>
@@ -135,7 +138,9 @@ export function SectionCards() {
                   <stop offset="95%" stopColor={destructiveColor} stopOpacity={0} />
                 </linearGradient>
               </defs>
+              <XAxis dataKey="date" fontSize={10} tickLine={false} axisLine={false} />
               <Tooltip
+                labelFormatter={(date) => `${new Date(date).toLocaleDateString()}`}
                 contentStyle={{
                   backgroundColor: "var(--card)",
                   borderColor: "var(--border)",
@@ -169,7 +174,7 @@ export function SectionCards() {
             </Badge>
           </CardAction>
         </CardHeader>
-        <CardContent className="h-20 p-0">
+        <CardContent className="h-24 p-0">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={usersData}>
               <defs>
@@ -178,7 +183,9 @@ export function SectionCards() {
                   <stop offset="95%" stopColor={primaryColor} stopOpacity={0} />
                 </linearGradient>
               </defs>
+              <XAxis dataKey="date" fontSize={10} tickLine={false} axisLine={false} />
               <Tooltip
+                labelFormatter={(date) => `${new Date(date).toLocaleDateString()}`}
                 contentStyle={{
                   backgroundColor: "var(--card)",
                   borderColor: "var(--border)",
@@ -212,7 +219,7 @@ export function SectionCards() {
             </Badge>
           </CardAction>
         </CardHeader>
-        <CardContent className="h-20 p-0">
+        <CardContent className="h-24 p-0">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={growthData}>
               <defs>
@@ -221,7 +228,9 @@ export function SectionCards() {
                   <stop offset="95%" stopColor={primaryColor} stopOpacity={0} />
                 </linearGradient>
               </defs>
+              <XAxis dataKey="date" fontSize={10} tickLine={false} axisLine={false} />
               <Tooltip
+                labelFormatter={(date) => `${new Date(date).toLocaleDateString()}`}
                 contentStyle={{
                   backgroundColor: "var(--card)",
                   borderColor: "var(--border)",
@@ -241,5 +250,5 @@ export function SectionCards() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
