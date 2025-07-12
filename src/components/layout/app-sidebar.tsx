@@ -1,17 +1,17 @@
 import * as React from "react"
 import {
-  IconCamera,
-  IconChartBar,
-  IconDashboard,
-  IconDatabase,
-  IconFileAi,
-  IconFileDescription,
-  IconHelp,
-  IconInnerShadowTop,
-  IconListDetails,
-  IconReport,
-  IconSettings,
-} from "@tabler/icons-react"
+  TbCamera,
+  TbChartBar,
+  TbLayoutDashboard,
+  TbDatabase,
+  TbFileAi,
+  TbFileDescription,
+  TbHelpCircle,
+  TbInnerShadowTop,
+  TbListDetails,
+  TbReport,
+  TbSettings,
+} from "react-icons/tb";
 
 import {
   Sidebar,
@@ -37,23 +37,23 @@ const data = {
     {
       title: "Dashboard",
       url: "#",
-      icon: IconDashboard,
+      icon: TbLayoutDashboard,
     },
     {
       title: "Lifecycle",
       url: "#",
-      icon: IconListDetails,
+      icon: TbListDetails,
     },
     {
       title: "Analytics",
       url: "#",
-      icon: IconChartBar,
+      icon: TbChartBar,
     },
   ],
   navClouds: [
     {
       title: "Capture",
-      icon: IconCamera,
+      icon: TbCamera,
       isActive: true,
       url: "#",
       items: [
@@ -69,7 +69,7 @@ const data = {
     },
     {
       title: "Proposal",
-      icon: IconFileDescription,
+      icon: TbFileDescription,
       url: "#",
       items: [
         {
@@ -84,7 +84,7 @@ const data = {
     },
     {
       title: "Prompts",
-      icon: IconFileAi,
+      icon: TbFileAi,
       url: "#",
       items: [
         {
@@ -102,24 +102,24 @@ const data = {
     {
       title: "Settings",
       url: "#",
-      icon: IconSettings,
+      icon: TbSettings,
     },
     {
       title: "Get Help",
       url: "#",
-      icon: IconHelp,
+      icon: TbHelpCircle,
     },
   ],
   documents: [
     {
       name: "Data Library",
       url: "#",
-      icon: IconDatabase,
+      icon: TbDatabase,
     },
     {
       name: "Reports",
       url: "#",
-      icon: IconReport,
+      icon: TbReport,
     },
   ],
 }
@@ -135,7 +135,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
               <a href="#">
-                <IconInnerShadowTop className="!size-5" />
+                <TbInnerShadowTop className="!size-5" />
                 <span className="text-base font-semibold">WareBook Inc</span>
               </a>
             </SidebarMenuButton>

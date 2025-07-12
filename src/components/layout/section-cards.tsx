@@ -1,7 +1,7 @@
 import {
-  IconTrendingDown,
-  IconTrendingUp,
-} from "@tabler/icons-react"
+  TbTrendingDown,
+  TbTrendingUp,
+} from "react-icons/tb";
 import {
   Area,
   AreaChart,
@@ -78,7 +78,7 @@ export function SectionCards() {
           </CardTitle>
           <CardAction>
             <Badge variant="default">
-              <IconTrendingUp />
+              <TbTrendingUp />
               +12.5%
             </Badge>
           </CardAction>
@@ -121,7 +121,7 @@ export function SectionCards() {
           </CardTitle>
           <CardAction>
             <Badge variant="destructive">
-              <IconTrendingDown />
+              <TbTrendingDown />
               -20%
             </Badge>
           </CardAction>
@@ -164,7 +164,7 @@ export function SectionCards() {
           </CardTitle>
           <CardAction>
             <Badge variant="default">
-              <IconTrendingUp />
+              <TbTrendingUp />
               +12.5%
             </Badge>
           </CardAction>
@@ -207,7 +207,7 @@ export function SectionCards() {
           </CardTitle>
           <CardAction>
             <Badge variant="default">
-              <IconTrendingUp />
+              <TbTrendingUp />
               +4.5%
             </Badge>
           </CardAction>

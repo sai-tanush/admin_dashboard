@@ -1,17 +1,18 @@
 import * as React from "react"
 import gsap from "gsap"
 import {
-  IconArrowDown,
-  IconArrowUp,
-  IconArrowsSort,
-  IconX,
-  IconChevronDown,
-  IconChevronLeft,
-  IconChevronRight,
-  IconChevronsLeft,
-  IconChevronsRight,
-  IconLayoutColumns,
-} from "@tabler/icons-react"
+  TbArrowDown,
+  TbArrowUp,
+  TbArrowsSort,
+  TbX,
+  TbChevronDown,
+  TbChevronLeft,
+  TbChevronRight,
+  TbChevronsLeft,
+  TbChevronsRight,
+  TbLayoutColumns,
+} from "react-icons/tb";
+
 import {
   type Column,
   type ColumnDef,
@@ -77,11 +78,11 @@ function SortableHeader<TData, TValue>({
     >
       {children}
       {sort === "desc" ? (
-        <IconArrowDown className="ml-2 size-4" />
+        <TbArrowDown className="ml-2 size-4" />
       ) : sort === "asc" ? (
-        <IconArrowUp className="ml-2 size-4" />
+        <TbArrowUp className="ml-2 size-4" />
       ) : (
-        <IconArrowsSort className="ml-2 size-4" />
+        <TbArrowsSort className="ml-2 size-4" />
       )}
     </Button>
   )
@@ -230,10 +231,10 @@ export function DataTable({
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm">
-                <IconLayoutColumns />
+                <TbLayoutColumns />
                 <span className="hidden lg:inline">Columns</span>
                 <span className="lg:hidden">Columns</span>
-                <IconChevronDown />
+                <TbChevronDown />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
@@ -349,7 +350,7 @@ export function DataTable({
               className="h-8 px-2 lg:px-3"
             >
               Reset
-              <IconX className="ml-2 size-4" />
+              <TbX className="ml-2 size-4" />
             </Button>
           )}
         </div>
@@ -443,7 +444,7 @@ export function DataTable({
                 disabled={!table.getCanPreviousPage()}
               >
                 <span className="sr-only">Go to first page</span>
-                <IconChevronsLeft />
+                <TbChevronsLeft />
               </Button>
               <Button
                 variant="outline"
@@ -453,7 +454,7 @@ export function DataTable({
                 disabled={!table.getCanPreviousPage()}
               >
                 <span className="sr-only">Go to previous page</span>
-                <IconChevronLeft />
+                <TbChevronLeft />
               </Button>
               <Button
                 variant="outline"
@@ -463,7 +464,7 @@ export function DataTable({
                 disabled={!table.getCanNextPage()}
               >
                 <span className="sr-only">Go to next page</span>
-                <IconChevronRight />
+                <TbChevronRight />
               </Button>
               <Button
                 variant="outline"
@@ -473,7 +474,7 @@ export function DataTable({
                 disabled={!table.getCanNextPage()}
               >
                 <span className="sr-only">Go to last page</span>
-                <IconChevronsRight />
+                <TbChevronsRight />
               </Button>
             </div>
           </div>
