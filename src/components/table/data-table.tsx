@@ -88,12 +88,18 @@ function SortableHeader<TData, TValue>({
   )
 }
 
-// Table columns (unchanged)
+// Table columns definition with the fix for username filter
 const columns: ColumnDef<z.infer<typeof schema>>[] = [
   {
     accessorKey: "username",
     header: "Username",
     cell: ({ row }) => row.original.username,
+    // This custom filter function makes the search case-insensitive and trims whitespace.
+    filterFn: (row, id, value) => {
+      const username = (row.getValue(id) as string).toLowerCase().trim();
+      const filterValue = (value as string).toLowerCase().trim();
+      return username.includes(filterValue);
+    },
   },
   {
     accessorKey: "date",
@@ -253,7 +259,6 @@ export function DataTable({
 
   return (
     <Tabs defaultValue="outline" className="w-full flex-col justify-start gap-6 mt-4">
-      {/* ... (The rest of the JSX is unchanged) ... */}
       <div className="flex items-center justify-between px-4 lg:px-6">
         <div className="px-2">
           <p className="text-2xl">Recent Transactions</p>
