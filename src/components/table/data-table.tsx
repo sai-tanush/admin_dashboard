@@ -325,7 +325,7 @@ export function DataTable({
             <Input
               type="number"
               placeholder="Min amount"
-              className="h-8 w-28 bg-muted"
+              className="h-8 w-32 bg-muted"
               value={
                 (
                   table.getColumn("amount")?.getFilterValue() as [
@@ -350,7 +350,7 @@ export function DataTable({
             <Input
               type="number"
               placeholder="Max amount"
-              className="h-8 w-28 bg-muted"
+              className="h-8 w-32 bg-muted"
               value={
                 (
                   table.getColumn("amount")?.getFilterValue() as [
