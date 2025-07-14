@@ -62,7 +62,7 @@ import {
 import { DataTableFacetedFilter } from "@/components/table/data-table-faceted-filter"
 import { schema } from "@/data/schema"
 
-// Helper component for sortable headers
+// Helper component for sortable headers (unchanged)
 function SortableHeader<TData, TValue>({
   column,
   children,
@@ -88,7 +88,7 @@ function SortableHeader<TData, TValue>({
   )
 }
 
-// Table columns
+// Table columns (unchanged)
 const columns: ColumnDef<z.infer<typeof schema>>[] = [
   {
     accessorKey: "username",
@@ -169,6 +169,36 @@ export function DataTable({
     pageIndex: 0,
     pageSize: 10,
   })
+  
+  React.useEffect(() => {
+    const amountFilter = columnFilters.find((f) => f.id === "amount")
+    const [min, max] = (amountFilter?.value as [number?, number?]) || [undefined, undefined];
+    
+    // Function to update sorting state while preserving other user-defined sorts
+    const updateAmountSort = (newSortRule: SortingState[0] | null) => {
+      setSorting(prevSorting => {
+        // Remove any previous automatic or manual sort on 'amount'
+        const otherSorts = prevSorting.filter(s => s.id !== 'amount');
+        // If a new rule is provided, add it to the front of the sort array.
+        // Otherwise, just return the other sorts, effectively removing the amount sort.
+        return newSortRule ? [newSortRule, ...otherSorts] : otherSorts;
+      });
+    };
+
+    // Rule 1 & 3: If a min value is set (with or without max), sort ascending.
+    if (min !== undefined && !Number.isNaN(min)) {
+      updateAmountSort({ id: 'amount', desc: false });
+    }
+    // Rule 2: If ONLY a max value is set, sort descending.
+    else if (max !== undefined && !Number.isNaN(max)) {
+      updateAmountSort({ id: 'amount', desc: true });
+    }
+    // Rule 4: If amount filter is cleared, remove our automatic sort.
+    else {
+      updateAmountSort(null);
+    }
+    
+  }, [columnFilters, setSorting]); 
 
   const table = useReactTable({
     data,
@@ -223,6 +253,7 @@ export function DataTable({
 
   return (
     <Tabs defaultValue="outline" className="w-full flex-col justify-start gap-6 mt-4">
+      {/* ... (The rest of the JSX is unchanged) ... */}
       <div className="flex items-center justify-between px-4 lg:px-6">
         <div className="px-2">
           <p className="text-2xl">Recent Transactions</p>
