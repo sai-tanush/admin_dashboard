@@ -30,6 +30,7 @@ import {
 } from "@tanstack/react-table"
 import { z } from "zod"
 
+import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -62,6 +63,25 @@ import {
 import { DataTableFacetedFilter } from "@/components/table/data-table-faceted-filter"
 import { schema } from "@/data/schema"
 
+// A simple debouncing hook. You can move this to a separate `hooks` file.
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = React.useState<T>(value);
+
+  React.useEffect(() => {
+    // Set a timer to update the debounced value after the specified delay
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    // Clean up the timer if the value changes before the delay has passed
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
+
 // Helper component for sortable headers (unchanged)
 function SortableHeader<TData, TValue>({
   column,
@@ -88,13 +108,12 @@ function SortableHeader<TData, TValue>({
   )
 }
 
-// Table columns definition with the fix for username filter
+// Table columns definition (unchanged)
 const columns: ColumnDef<z.infer<typeof schema>>[] = [
   {
     accessorKey: "username",
     header: "Username",
     cell: ({ row }) => row.original.username,
-    // This custom filter function makes the search case-insensitive and trims whitespace.
     filterFn: (row, id, value) => {
       const username = (row.getValue(id) as string).toLowerCase().trim();
       const filterValue = (value as string).toLowerCase().trim();
@@ -175,36 +194,37 @@ export function DataTable({
     pageIndex: 0,
     pageSize: 10,
   })
-  
+
+  const [amountError, setAmountError] = React.useState({ min: false, max: false });
+  const [pageInputError, setPageInputError] = React.useState(false);
+
+  const [pageInputValue, setPageInputValue] = React.useState(
+    (pagination.pageIndex + 1).toString()
+  );
+  const debouncedPageInput = useDebounce(pageInputValue, 500);
+
   React.useEffect(() => {
     const amountFilter = columnFilters.find((f) => f.id === "amount")
     const [min, max] = (amountFilter?.value as [number?, number?]) || [undefined, undefined];
     
-    // Function to update sorting state while preserving other user-defined sorts
     const updateAmountSort = (newSortRule: SortingState[0] | null) => {
       setSorting(prevSorting => {
-        // Remove any previous automatic or manual sort on 'amount'
         const otherSorts = prevSorting.filter(s => s.id !== 'amount');
-        // If a new rule is provided, add it to the front of the sort array.
-        // Otherwise, just return the other sorts, effectively removing the amount sort.
         return newSortRule ? [newSortRule, ...otherSorts] : otherSorts;
       });
     };
 
-    // Rule 1 & 3: If a min value is set (with or without max), sort ascending.
     if (min !== undefined && !Number.isNaN(min)) {
       updateAmountSort({ id: 'amount', desc: false });
     }
-    // Rule 2: If ONLY a max value is set, sort descending.
     else if (max !== undefined && !Number.isNaN(max)) {
       updateAmountSort({ id: 'amount', desc: true });
     }
-    // Rule 4: If amount filter is cleared, remove our automatic sort.
     else {
       updateAmountSort(null);
     }
     
-  }, [columnFilters, setSorting]); 
+  }, [columnFilters]); 
 
   const table = useReactTable({
     data,
@@ -230,6 +250,37 @@ export function DataTable({
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
   })
+  
+  React.useEffect(() => {
+    if (debouncedPageInput === "") {
+        setPageInputError(false);
+        return;
+    }
+    const page = Number(debouncedPageInput);
+    const pageCount = table.getPageCount();
+
+    if (!isNaN(page) && page > 0 && page <= pageCount) {
+        table.setPageIndex(page - 1);
+        setPageInputError(false);
+    } else {
+        setPageInputError(true);
+    }
+  }, [debouncedPageInput, table]);
+
+  React.useEffect(() => {
+    setPageInputValue((pagination.pageIndex + 1).toString());
+    setPageInputError(false);
+  }, [pagination.pageIndex]);
+
+  const handlePageInputBlur = () => {
+    const page = Number(pageInputValue);
+    const pageCount = table.getPageCount();
+
+    if (isNaN(page) || page < 1 || page > pageCount) {
+      setPageInputValue((pagination.pageIndex + 1).toString());
+      setPageInputError(false);
+    }
+  };
 
   const warehouseOptions = React.useMemo(() => {
     const unique = [...new Set(initialData.map((d) => d.warehouse_name))]
@@ -239,7 +290,8 @@ export function DataTable({
   const isFiltered = table.getState().columnFilters.length > 0
 
   const tbodyRef = React.useRef<HTMLTableSectionElement>(null);
-  const visibleRows = table.getRowModel().rows;
+
+  const tableRows = table.getRowModel().rows
 
   React.useLayoutEffect(() => {
     if (!tbodyRef.current) return
@@ -255,7 +307,7 @@ export function DataTable({
         ease: "power2.out",
       }
     )
-  }, [visibleRows])
+  }, [tableRows])
 
   return (
     <Tabs defaultValue="outline" className="w-full flex-col justify-start gap-6 mt-4">
@@ -330,7 +382,11 @@ export function DataTable({
             <Input
               type="number"
               placeholder="Min amount"
-              className="h-8 w-32 bg-muted"
+              title={amountError.min ? "Amount cannot be negative" : ""}
+              className={cn(
+                "h-8 w-32 bg-muted",
+                amountError.min && "ring-2 ring-destructive focus-visible:ring-destructive"
+              )}
               value={
                 (
                   table.getColumn("amount")?.getFilterValue() as [
@@ -340,14 +396,20 @@ export function DataTable({
                 )?.[0] ?? ""
               }
               onChange={(e) => {
-                const value = e.target.value
+                const value = e.target.value;
+                const numValue = Number(value);
+                if (numValue < 0) {
+                  setAmountError(prev => ({ ...prev, min: true }));
+                  return;
+                }
+                setAmountError(prev => ({ ...prev, min: false }));
                 const currentFilter = table
                   .getColumn("amount")
                   ?.getFilterValue() as [number, number] | undefined
                 table
                   .getColumn("amount")
                   ?.setFilterValue([
-                    value ? Number(value) : undefined,
+                    value ? numValue : undefined,
                     currentFilter?.[1],
                   ])
               }}
@@ -355,7 +417,11 @@ export function DataTable({
             <Input
               type="number"
               placeholder="Max amount"
-              className="h-8 w-32 bg-muted"
+              title={amountError.max ? "Amount cannot be negative" : ""}
+              className={cn(
+                "h-8 w-32 bg-muted",
+                amountError.max && "ring-2 ring-destructive focus-visible:ring-destructive"
+              )}
               value={
                 (
                   table.getColumn("amount")?.getFilterValue() as [
@@ -366,6 +432,12 @@ export function DataTable({
               }
               onChange={(e) => {
                 const value = e.target.value
+                const numValue = Number(value)
+                if (numValue < 0) {
+                    setAmountError(prev => ({ ...prev, max: true }));
+                    return;
+                }
+                setAmountError(prev => ({ ...prev, max: false }));
                 const currentFilter = table
                   .getColumn("amount")
                   ?.getFilterValue() as [number, number] | undefined
@@ -373,7 +445,7 @@ export function DataTable({
                   .getColumn("amount")
                   ?.setFilterValue([
                     currentFilter?.[0],
-                    value ? Number(value) : undefined,
+                    value ? numValue : undefined,
                   ])
               }}
             />
@@ -443,7 +515,7 @@ export function DataTable({
             {table.getFilteredSelectedRowModel().rows.length} of{" "}
             {table.getFilteredRowModel().rows.length} row(s) selected.
           </div>
-          <div className="flex w-full items-center gap-8 lg:w-fit">
+          <div className="flex w-full items-center gap-4 lg:w-fit lg:gap-8">
             <div className="hidden items-center gap-2 lg:flex">
               <Label htmlFor="rows-per-page" className="text-sm font-medium">
                 Rows per page
@@ -468,10 +540,23 @@ export function DataTable({
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex w-fit items-center justify-center text-sm font-medium">
-              Page {table.getState().pagination.pageIndex + 1} of{" "}
-              {table.getPageCount()}
+            
+            <div className="flex items-center gap-2 text-sm font-medium">
+              Page
+              <Input
+                type="number"
+                value={pageInputValue}
+                onChange={(e) => setPageInputValue(e.target.value)}
+                onBlur={handlePageInputBlur}
+                title={pageInputError ? `Enter a page from 1 to ${table.getPageCount()}` : ""}
+                className={cn(
+                  "h-8 w-16",
+                  pageInputError && "ring-2 ring-destructive focus-visible:ring-destructive"
+                )}
+              />
+              of {table.getPageCount() || 1}
             </div>
+            
             <div className="ml-auto flex items-center gap-2 lg:ml-0">
               <Button
                 variant="outline"
