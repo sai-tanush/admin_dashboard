@@ -63,17 +63,14 @@ import {
 import { DataTableFacetedFilter } from "@/components/table/data-table-faceted-filter"
 import { schema } from "@/data/schema"
 
-// A simple debouncing hook. You can move this to a separate `hooks` file.
 function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = React.useState<T>(value);
 
   React.useEffect(() => {
-    // Set a timer to update the debounced value after the specified delay
     const handler = setTimeout(() => {
       setDebouncedValue(value);
     }, delay);
 
-    // Clean up the timer if the value changes before the delay has passed
     return () => {
       clearTimeout(handler);
     };
@@ -229,6 +226,8 @@ export function DataTable({
   const table = useReactTable({
     data,
     columns,
+    // Prevent the table from jumping to page 1 on sort/filter
+    autoResetPageIndex: false,
     state: {
       sorting,
       columnVisibility,
@@ -305,7 +304,7 @@ export function DataTable({
 
   const tbodyRef = React.useRef<HTMLTableSectionElement>(null);
 
-  const tableRows = table.getRowModel().rows
+  const tableRows = table.getRowModel().rows;
 
   React.useLayoutEffect(() => {
     if (!tbodyRef.current) return
