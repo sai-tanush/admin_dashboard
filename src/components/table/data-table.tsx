@@ -305,6 +305,8 @@ export function DataTable({
 
   const tbodyRef = React.useRef<HTMLTableSectionElement>(null);
 
+  const tableRows = table.getRowModel().rows
+
   React.useLayoutEffect(() => {
     if (!tbodyRef.current) return
     const rows = tbodyRef.current.querySelectorAll("tr")
@@ -319,7 +321,7 @@ export function DataTable({
         ease: "power2.out",
       }
     )
-  }, [table.getRowModel().rows])
+  }, [tableRows])
 
   return (
     <Tabs defaultValue="outline" className="w-full flex-col justify-start gap-6 mt-4">
