@@ -251,6 +251,18 @@ export function DataTable({
     getFacetedUniqueValues: getFacetedUniqueValues(),
   })
   
+  // Effect to clear a column's filter when it's hidden
+  React.useEffect(() => {
+    const filterableColumns = ['username', 'status', 'warehouse_name', 'amount'];
+    filterableColumns.forEach(colId => {
+      const column = table.getColumn(colId);
+      if (column && !column.getIsVisible() && column.getFilterValue() !== undefined) {
+        column.setFilterValue(undefined);
+      }
+    });
+  }, [columnVisibility, table]);
+
+  // Effect to navigate when the debounced value changes
   React.useEffect(() => {
     if (debouncedPageInput === "") {
         setPageInputError(false);
@@ -267,11 +279,13 @@ export function DataTable({
     }
   }, [debouncedPageInput, table]);
 
+  // Effect to sync input when pagination changes from buttons
   React.useEffect(() => {
     setPageInputValue((pagination.pageIndex + 1).toString());
     setPageInputError(false);
   }, [pagination.pageIndex]);
 
+  // Handle blur event to reset invalid page input
   const handlePageInputBlur = () => {
     const page = Number(pageInputValue);
     const pageCount = table.getPageCount();
@@ -291,8 +305,6 @@ export function DataTable({
 
   const tbodyRef = React.useRef<HTMLTableSectionElement>(null);
 
-  const tableRows = table.getRowModel().rows
-
   React.useLayoutEffect(() => {
     if (!tbodyRef.current) return
     const rows = tbodyRef.current.querySelectorAll("tr")
@@ -307,7 +319,7 @@ export function DataTable({
         ease: "power2.out",
       }
     )
-  }, [tableRows])
+  }, [table.getRowModel().rows])
 
   return (
     <Tabs defaultValue="outline" className="w-full flex-col justify-start gap-6 mt-4">
@@ -354,102 +366,106 @@ export function DataTable({
         className="relative flex flex-col gap-4 -mt-2 md:-mt-4 overflow-auto px-4 py-2 lg:px-6"
       >
         <div className="flex flex-wrap items-center gap-2">
-          <Input
-            placeholder="Filter by username..."
-            value={
-              (table.getColumn("username")?.getFilterValue() as string) ?? ""
-            }
-            onChange={(event) =>
-              table.getColumn("username")?.setFilterValue(event.target.value)
-            }
-            className="h-8 w-[150px] lg:w-[250px] bg-muted"
-          />
-          {table.getColumn("status") && (
+          {table.getColumn("username")?.getIsVisible() && (
+            <Input
+              placeholder="Filter by username..."
+              value={
+                (table.getColumn("username")?.getFilterValue() as string) ?? ""
+              }
+              onChange={(event) =>
+                table.getColumn("username")?.setFilterValue(event.target.value)
+              }
+              className="h-8 w-[150px] lg:w-[250px] bg-muted"
+            />
+          )}
+          {table.getColumn("status")?.getIsVisible() && (
             <DataTableFacetedFilter
               column={table.getColumn("status")}
               title="Status"
               options={statusOptions}
             />
           )}
-          {table.getColumn("warehouse_name") && (
+          {table.getColumn("warehouse_name")?.getIsVisible() && (
             <DataTableFacetedFilter
               column={table.getColumn("warehouse_name")}
               title="Warehouse"
               options={warehouseOptions}
             />
           )}
-          <div className="flex items-center gap-2">
-            <Input
-              type="number"
-              placeholder="Min amount"
-              title={amountError.min ? "Amount cannot be negative" : ""}
-              className={cn(
-                "h-8 w-32 bg-muted",
-                amountError.min && "ring-2 ring-destructive focus-visible:ring-destructive"
-              )}
-              value={
-                (
-                  table.getColumn("amount")?.getFilterValue() as [
-                    number,
-                    number,
-                  ]
-                )?.[0] ?? ""
-              }
-              onChange={(e) => {
-                const value = e.target.value;
-                const numValue = Number(value);
-                if (numValue < 0) {
-                  setAmountError(prev => ({ ...prev, min: true }));
-                  return;
+          {table.getColumn("amount")?.getIsVisible() && (
+            <div className="flex items-center gap-2">
+              <Input
+                type="number"
+                placeholder="Min amount"
+                title={amountError.min ? "Amount cannot be negative" : ""}
+                className={cn(
+                  "h-8 w-32 bg-muted",
+                  amountError.min && "ring-2 ring-destructive focus-visible:ring-destructive"
+                )}
+                value={
+                  (
+                    table.getColumn("amount")?.getFilterValue() as [
+                      number,
+                      number,
+                    ]
+                  )?.[0] ?? ""
                 }
-                setAmountError(prev => ({ ...prev, min: false }));
-                const currentFilter = table
-                  .getColumn("amount")
-                  ?.getFilterValue() as [number, number] | undefined
-                table
-                  .getColumn("amount")
-                  ?.setFilterValue([
-                    value ? numValue : undefined,
-                    currentFilter?.[1],
-                  ])
-              }}
-            />
-            <Input
-              type="number"
-              placeholder="Max amount"
-              title={amountError.max ? "Amount cannot be negative" : ""}
-              className={cn(
-                "h-8 w-32 bg-muted",
-                amountError.max && "ring-2 ring-destructive focus-visible:ring-destructive"
-              )}
-              value={
-                (
-                  table.getColumn("amount")?.getFilterValue() as [
-                    number,
-                    number,
-                  ]
-                )?.[1] ?? ""
-              }
-              onChange={(e) => {
-                const value = e.target.value
-                const numValue = Number(value)
-                if (numValue < 0) {
-                    setAmountError(prev => ({ ...prev, max: true }));
+                onChange={(e) => {
+                  const value = e.target.value;
+                  const numValue = Number(value);
+                  if (numValue < 0) {
+                    setAmountError(prev => ({ ...prev, min: true }));
                     return;
+                  }
+                  setAmountError(prev => ({ ...prev, min: false }));
+                  const currentFilter = table
+                    .getColumn("amount")
+                    ?.getFilterValue() as [number, number] | undefined
+                  table
+                    .getColumn("amount")
+                    ?.setFilterValue([
+                      value ? numValue : undefined,
+                      currentFilter?.[1],
+                    ])
+                }}
+              />
+              <Input
+                type="number"
+                placeholder="Max amount"
+                title={amountError.max ? "Amount cannot be negative" : ""}
+                className={cn(
+                  "h-8 w-32 bg-muted",
+                  amountError.max && "ring-2 ring-destructive focus-visible:ring-destructive"
+                )}
+                value={
+                  (
+                    table.getColumn("amount")?.getFilterValue() as [
+                      number,
+                      number,
+                    ]
+                  )?.[1] ?? ""
                 }
-                setAmountError(prev => ({ ...prev, max: false }));
-                const currentFilter = table
-                  .getColumn("amount")
-                  ?.getFilterValue() as [number, number] | undefined
-                table
-                  .getColumn("amount")
-                  ?.setFilterValue([
-                    currentFilter?.[0],
-                    value ? numValue : undefined,
-                  ])
-              }}
-            />
-          </div>
+                onChange={(e) => {
+                  const value = e.target.value
+                  const numValue = Number(value)
+                  if (numValue < 0) {
+                      setAmountError(prev => ({ ...prev, max: true }));
+                      return;
+                  }
+                  setAmountError(prev => ({ ...prev, max: false }));
+                  const currentFilter = table
+                    .getColumn("amount")
+                    ?.getFilterValue() as [number, number] | undefined
+                  table
+                    .getColumn("amount")
+                    ?.setFilterValue([
+                      currentFilter?.[0],
+                      value ? numValue : undefined,
+                    ])
+                }}
+              />
+            </div>
+          )}
 
           {isFiltered && (
             <Button
