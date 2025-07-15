@@ -104,7 +104,7 @@ function renderChart(data: ChartData[], color: string, gradientId: string) {
         </defs>
         <XAxis
           dataKey="date"
-          scale="band"
+          scale="point"
           fontSize={10}
           tickLine={false}
           axisLine={false}
