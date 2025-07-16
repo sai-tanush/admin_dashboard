@@ -79,7 +79,6 @@ function useDebounce<T>(value: T, delay: number): T {
   return debouncedValue;
 }
 
-// Helper component for sortable headers (unchanged)
 function SortableHeader<TData, TValue>({
   column,
   children,
@@ -105,7 +104,6 @@ function SortableHeader<TData, TValue>({
   )
 }
 
-// Table columns definition (unchanged)
 const columns: ColumnDef<z.infer<typeof schema>>[] = [
   {
     accessorKey: "username",
@@ -226,7 +224,6 @@ export function DataTable({
   const table = useReactTable({
     data,
     columns,
-    // Prevent the table from jumping to page 1 on sort/filter
     autoResetPageIndex: false,
     state: {
       sorting,
@@ -322,6 +319,7 @@ export function DataTable({
     )
   }, [tableRows])
 
+
   return (
     <Tabs defaultValue="outline" className="w-full flex-col justify-start gap-6 mt-4">
       <div className="flex items-center justify-between px-4 lg:px-6">
@@ -366,7 +364,8 @@ export function DataTable({
         value="outline"
         className="relative flex flex-col gap-4 -mt-2 md:-mt-4 overflow-auto px-4 py-2 lg:px-6"
       >
-        <div className="flex flex-wrap items-center gap-2">
+        {/* Main filter container: stacks groups vertically on mobile, horizontally on desktop */}
+        <div className="flex flex-col md:flex-row md:items-center md:flex-wrap gap-4">
           {table.getColumn("username")?.getIsVisible() && (
             <Input
               placeholder="Filter by username..."
@@ -376,97 +375,107 @@ export function DataTable({
               onChange={(event) =>
                 table.getColumn("username")?.setFilterValue(event.target.value)
               }
-              className="h-8 w-[150px] lg:w-[250px] bg-muted"
+              // Takes full width on mobile, specific width on desktop
+              className="h-8 w-full md:w-[150px] lg:w-[250px] bg-muted text-center md:text-left"
             />
           )}
-          {table.getColumn("status")?.getIsVisible() && (
-            <DataTableFacetedFilter
-              column={table.getColumn("status")}
-              title="Status"
-              options={statusOptions}
-            />
-          )}
-          {table.getColumn("warehouse_name")?.getIsVisible() && (
-            <DataTableFacetedFilter
-              column={table.getColumn("warehouse_name")}
-              title="Warehouse"
-              options={warehouseOptions}
-            />
-          )}
-          {table.getColumn("amount")?.getIsVisible() && (
-            <div className="flex items-center gap-2">
-              <Input
-                type="number"
-                placeholder="Min amount"
-                title={amountError.min ? "Amount cannot be negative" : ""}
-                className={cn(
-                  "h-8 w-32 bg-muted",
-                  amountError.min && "ring-2 ring-destructive focus-visible:ring-destructive"
-                )}
-                value={
-                  (
-                    table.getColumn("amount")?.getFilterValue() as [
-                      number,
-                      number,
-                    ]
-                  )?.[0] ?? ""
-                }
-                onChange={(e) => {
-                  const value = e.target.value;
-                  const numValue = Number(value);
-                  if (numValue < 0) {
-                    setAmountError(prev => ({ ...prev, min: true }));
-                    return;
-                  }
-                  setAmountError(prev => ({ ...prev, min: false }));
-                  const currentFilter = table
-                    .getColumn("amount")
-                    ?.getFilterValue() as [number, number] | undefined
-                  table
-                    .getColumn("amount")
-                    ?.setFilterValue([
-                      value ? numValue : undefined,
-                      currentFilter?.[1],
-                    ])
-                }}
+
+          {/* Wrapper for Status and Warehouse to keep them on the same line */}
+          <div className="grid grid-cols-2 gap-4 md:flex md:w-auto">
+            {table.getColumn("status")?.getIsVisible() && (
+              <DataTableFacetedFilter
+                column={table.getColumn("status")}
+                title="Status"
+                options={statusOptions}
               />
-              <Input
-                type="number"
-                placeholder="Max amount"
-                title={amountError.max ? "Amount cannot be negative" : ""}
-                className={cn(
-                  "h-8 w-32 bg-muted",
-                  amountError.max && "ring-2 ring-destructive focus-visible:ring-destructive"
-                )}
-                value={
-                  (
-                    table.getColumn("amount")?.getFilterValue() as [
-                      number,
-                      number,
-                    ]
-                  )?.[1] ?? ""
-                }
-                onChange={(e) => {
-                  const value = e.target.value
-                  const numValue = Number(value)
-                  if (numValue < 0) {
-                      setAmountError(prev => ({ ...prev, max: true }));
+            )}
+            {table.getColumn("warehouse_name")?.getIsVisible() && (
+              <DataTableFacetedFilter
+                column={table.getColumn("warehouse_name")}
+                title="Warehouse"
+                options={warehouseOptions}
+              />
+            )}
+          </div>
+          
+          {/* Wrapper for Amount inputs to keep them on the same line */}
+          <div className="grid grid-cols-2 gap-4 md:flex md:w-auto">
+            {table.getColumn("amount")?.getIsVisible() && (
+              <>
+                <Input
+                  type="number"
+                  placeholder="Min amount"
+                  title={amountError.min ? "Amount cannot be negative" : ""}
+                  className={cn(
+                    "h-8 w-full bg-muted md:w-32 text-center md:text-left",
+                    amountError.min && "ring-2 ring-destructive focus-visible:ring-destructive"
+                  )}
+                  value={
+                    (
+                      table.getColumn("amount")?.getFilterValue() as [
+                        number,
+                        number,
+                      ]
+                    )?.[0] ?? ""
+                  }
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    const numValue = Number(value);
+                    if (numValue < 0) {
+                      setAmountError(prev => ({ ...prev, min: true }));
                       return;
+                    }
+                    setAmountError(prev => ({ ...prev, min: false }));
+                    const currentFilter = table
+                      .getColumn("amount")
+                      ?.getFilterValue() as [number, number] | undefined
+                    table
+                      .getColumn("amount")
+                      ?.setFilterValue([
+                        value ? numValue : undefined,
+                        currentFilter?.[1],
+                      ])
+                  }}
+                />
+                <Input
+                  type="number"
+                  placeholder="Max amount"
+                  title={amountError.max ? "Amount cannot be negative" : ""}
+                  className={cn(
+                    "h-8 w-full bg-muted md:w-32 text-center md:text-left",
+                    amountError.max && "ring-2 ring-destructive focus-visible:ring-destructive"
+                  )}
+                  value={
+                    (
+                      table.getColumn("amount")?.getFilterValue() as [
+                        number,
+                        number,
+                      ]
+                    )?.[1] ?? ""
                   }
-                  setAmountError(prev => ({ ...prev, max: false }));
-                  const currentFilter = table
-                    .getColumn("amount")
-                    ?.getFilterValue() as [number, number] | undefined
-                  table
-                    .getColumn("amount")
-                    ?.setFilterValue([
-                      currentFilter?.[0],
-                      value ? numValue : undefined,
-                    ])
-                }}
-              />
-            </div>
-          )}
+                  onChange={(e) => {
+                    const value = e.target.value
+                    const numValue = Number(value)
+                    if (numValue < 0) {
+                        setAmountError(prev => ({ ...prev, max: true }));
+                        return;
+                    }
+                    setAmountError(prev => ({ ...prev, max: false }));
+                    const currentFilter = table
+                      .getColumn("amount")
+                      ?.getFilterValue() as [number, number] | undefined
+                    table
+                      .getColumn("amount")
+                      ?.setFilterValue([
+                        currentFilter?.[0],
+                        value ? numValue : undefined,
+                      ])
+                  }}
+                />
+              </>
+            )}
+          </div>
+
 
           {isFiltered && (
             <Button
@@ -480,6 +489,7 @@ export function DataTable({
           )}
         </div>
         <div className="overflow-hidden rounded-lg border min-h-[400px] md:min-h-[470px]">
+          {/* ... Table ... */}
           <Table>
             <TableHeader className="bg-muted sticky top-0 z-10">
               {table.getHeaderGroups().map((headerGroup) => (
@@ -528,10 +538,7 @@ export function DataTable({
           </Table>
         </div>
         <div className="flex items-center justify-between px-4">
-          {/* <div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
-            {table.getFilteredSelectedRowModel().rows.length} of{" "}
-            {table.getFilteredRowModel().rows.length} row(s) selected.
-          </div> */}
+          {/* ... Pagination ... */}
           <div className="flex w-full items-center gap-4 lg:w-fit lg:gap-8">
             <div className="hidden items-center gap-2 lg:flex">
               <Label htmlFor="rows-per-page" className="text-sm font-medium">
