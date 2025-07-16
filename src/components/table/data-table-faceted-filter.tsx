@@ -38,7 +38,7 @@ export function DataTableFacetedFilter<TData, TValue>({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         {/* --- CHANGED: Simplified the Button UI --- */}
-        <Button variant="outline" size="sm" className="h-8">
+        <Button variant="outline" size="sm" className="h-8 bg-muted">
           {title}
           {/* A cleaner way to show selected count */}
           {selectedValues?.size > 0 && (
