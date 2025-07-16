@@ -539,7 +539,8 @@ export function DataTable({
               <Label htmlFor="rows-per-page" className="text-sm font-medium">
                 Rows per page
               </Label>
-              <Select
+              <div className="bg-muted">
+                <Select
                 value={`${table.getState().pagination.pageSize}`}
                 onValueChange={(value) => {
                   table.setPageSize(Number(value))
@@ -558,6 +559,9 @@ export function DataTable({
                   ))}
                 </SelectContent>
               </Select>
+
+              </div>
+              
             </div>
             
             <div className="flex items-center gap-2 text-sm font-medium">
@@ -569,7 +573,7 @@ export function DataTable({
                 onBlur={handlePageInputBlur}
                 title={pageInputError ? `Enter a page from 1 to ${table.getPageCount()}` : ""}
                 className={cn(
-                  "h-8 w-16",
+                  "h-8 w-16 bg-muted",
                   pageInputError && "ring-2 ring-destructive focus-visible:ring-destructive"
                 )}
               />
