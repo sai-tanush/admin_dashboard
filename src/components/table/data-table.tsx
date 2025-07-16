@@ -63,6 +63,7 @@ import {
 import { DataTableFacetedFilter } from "@/components/table/data-table-faceted-filter"
 import { schema } from "@/data/schema"
 
+// ... (All helpers and other component logic remain the same)
 function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = React.useState<T>(value);
 
@@ -247,7 +248,6 @@ export function DataTable({
     getFacetedUniqueValues: getFacetedUniqueValues(),
   })
   
-  // Effect to clear a column's filter when it's hidden
   React.useEffect(() => {
     const filterableColumns = ['username', 'status', 'warehouse_name', 'amount'];
     filterableColumns.forEach(colId => {
@@ -258,7 +258,6 @@ export function DataTable({
     });
   }, [columnVisibility, table]);
 
-  // Effect to navigate when the debounced value changes
   React.useEffect(() => {
     if (debouncedPageInput === "") {
         setPageInputError(false);
@@ -275,13 +274,11 @@ export function DataTable({
     }
   }, [debouncedPageInput, table]);
 
-  // Effect to sync input when pagination changes from buttons
   React.useEffect(() => {
     setPageInputValue((pagination.pageIndex + 1).toString());
     setPageInputError(false);
   }, [pagination.pageIndex]);
 
-  // Handle blur event to reset invalid page input
   const handlePageInputBlur = () => {
     const page = Number(pageInputValue);
     const pageCount = table.getPageCount();
@@ -298,9 +295,7 @@ export function DataTable({
   }, [initialData])
 
   const isFiltered = table.getState().columnFilters.length > 0
-
   const tbodyRef = React.useRef<HTMLTableSectionElement>(null);
-
   const tableRows = table.getRowModel().rows;
 
   React.useLayoutEffect(() => {
@@ -364,7 +359,6 @@ export function DataTable({
         value="outline"
         className="relative flex flex-col gap-4 -mt-2 md:-mt-4 overflow-auto px-4 py-2 lg:px-6"
       >
-        {/* Main filter container: stacks groups vertically on mobile, horizontally on desktop */}
         <div className="flex flex-col md:flex-row md:items-center md:flex-wrap gap-4">
           {table.getColumn("username")?.getIsVisible() && (
             <Input
@@ -372,10 +366,12 @@ export function DataTable({
               value={
                 (table.getColumn("username")?.getFilterValue() as string) ?? ""
               }
-              onChange={(event) =>
-                table.getColumn("username")?.setFilterValue(event.target.value)
-              }
-              // Takes full width on mobile, specific width on desktop
+              // CHANGE: Process the input value on change
+              onChange={(event) => {
+                // Replace 2 or more spaces with a single space
+                const processedValue = event.target.value.replace(/ {2,}/g, ' ');
+                table.getColumn("username")?.setFilterValue(processedValue);
+              }}
               className="h-8 w-full md:w-[150px] lg:w-[250px] bg-muted text-center md:text-left"
             />
           )}
@@ -489,7 +485,7 @@ export function DataTable({
           )}
         </div>
         <div className="overflow-hidden rounded-lg border min-h-[400px] md:min-h-[470px]">
-          {/* ... Table ... */}
+          {/* ... Table and Pagination ... */}
           <Table>
             <TableHeader className="bg-muted sticky top-0 z-10">
               {table.getHeaderGroups().map((headerGroup) => (
@@ -538,7 +534,6 @@ export function DataTable({
           </Table>
         </div>
         <div className="flex items-center justify-between px-4">
-          {/* ... Pagination ... */}
           <div className="flex w-full items-center gap-4 lg:w-fit lg:gap-8">
             <div className="hidden items-center gap-2 lg:flex">
               <Label htmlFor="rows-per-page" className="text-sm font-medium">
