@@ -331,7 +331,7 @@ export function DataTable({
         <div className="flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" className="bg-muted">
                 <TbLayoutColumns />
                 <span className="hidden lg:inline">Columns</span>
                 <span className="lg:hidden">Columns</span>
@@ -479,7 +479,7 @@ export function DataTable({
             </Button>
           )}
         </div>
-        <div className="overflow-hidden rounded-lg border min-h-[400px] md:min-h-[500px]">
+        <div className="overflow-hidden rounded-lg border min-h-[400px] md:min-h-[470px]">
           <Table>
             <TableHeader className="bg-muted sticky top-0 z-10">
               {table.getHeaderGroups().map((headerGroup) => (
