@@ -1,30 +1,20 @@
 import * as React from "react"
-import {
-  TbCheck,
-  TbCircle,
-} from "react-icons/tb";
+// --- CHANGED: Added and removed icons ---
+import { TbChevronDown } from "react-icons/tb";
 import { type Column } from "@tanstack/react-table"
-
-import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+// --- CHANGED: Removed Command and Popover, Added DropdownMenu ---
 import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-  CommandSeparator,
-} from "@/components/ui/command"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
-import { Separator } from "@/components/ui/separator"
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
-// Define the props the component will accept
+// Props definition remains the same
 interface DataTableFacetedFilterProps<TData, TValue> {
   column?: Column<TData, TValue>
   title?: string
@@ -35,117 +25,85 @@ interface DataTableFacetedFilterProps<TData, TValue> {
   }[]
 }
 
-// Export the component so it can be imported elsewhere
 export function DataTableFacetedFilter<TData, TValue>({
   column,
   title,
   options,
 }: DataTableFacetedFilterProps<TData, TValue>) {
-  // Use a Set for efficient lookup of selected values
+  // Logic to get selected values remains the same
   const selectedValues = new Set(column?.getFilterValue() as string[])
 
   return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button variant="outline" size="sm" className="h-8 border-dashed">
-          <TbCircle className="mr-2 size-4" />
+    // --- CHANGED: Replaced Popover with DropdownMenu ---
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        {/* --- CHANGED: Simplified the Button UI --- */}
+        <Button variant="outline" size="sm" className="h-8 bg-muted">
           {title}
-          {/* Show a badge with the number of selected filters */}
+          {/* A cleaner way to show selected count */}
           {selectedValues?.size > 0 && (
             <>
-              <Separator orientation="vertical" className="mx-2 h-4" />
+              <DropdownMenuSeparator className="mx-2 h-4" />
               <Badge
                 variant="secondary"
-                className="rounded-sm px-1 font-normal lg:hidden"
+                className="rounded-sm px-1 font-normal"
               >
                 {selectedValues.size}
               </Badge>
-              <div className="hidden space-x-1 lg:flex">
-                {selectedValues.size > 2 ? (
-                  <Badge
-                    variant="secondary"
-                    className="rounded-sm px-1 font-normal"
-                  >
-                    {selectedValues.size} selected
-                  </Badge>
-                ) : (
-                  options
-                    .filter((option) => selectedValues.has(option.value))
-                    .map((option) => (
-                      <Badge
-                        variant="secondary"
-                        key={option.value}
-                        className="rounded-sm px-1 font-normal"
-                      >
-                        {option.label}
-                      </Badge>
-                    ))
-                )}
-              </div>
             </>
           )}
+          {/* --- CHANGED: Added the requested down arrow icon --- */}
+          <TbChevronDown className="ml-2 size-4 opacity-50" />
         </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0" align="start">
-        <Command>
-          <CommandInput placeholder={title} />
-          <CommandList>
-            <CommandEmpty>No results found.</CommandEmpty>
-            <CommandGroup>
-              {options.map((option) => {
-                const isSelected = selectedValues.has(option.value)
-                return (
-                  <CommandItem
-                    key={option.value}
-                    onSelect={() => {
-                      // When an item is clicked, add or remove it from the Set
-                      if (isSelected) {
-                        selectedValues.delete(option.value)
-                      } else {
-                        selectedValues.add(option.value)
-                      }
-                      const filterValues = Array.from(selectedValues)
-                      // Update the table's column filter state
-                      column?.setFilterValue(
-                        filterValues.length ? filterValues : undefined
-                      )
-                    }}
-                  >
-                    <div
-                      className={cn(
-                        "mr-2 flex size-4 items-center justify-center rounded-sm border border-primary",
-                        isSelected
-                          ? "bg-primary text-primary-foreground"
-                          : "opacity-50 [&_svg]:invisible"
-                      )}
-                    >
-                      <TbCheck className={cn("size-4")} />
-                    </div>
-                    {option.icon && (
-                      <option.icon className="mr-2 size-4 text-muted-foreground" />
-                    )}
-                    <span>{option.label}</span>
-                  </CommandItem>
+      </DropdownMenuTrigger>
+      {/* --- CHANGED: Replaced PopoverContent with DropdownMenuContent --- */}
+      <DropdownMenuContent className="w-56" align="start">
+        {/* --- NEW: Added a label for better context --- */}
+        <DropdownMenuLabel>{title}</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        
+        {/* --- CHANGED: Replaced Command components with DropdownMenuCheckboxItem --- */}
+        {options.map((option) => {
+          const isSelected = selectedValues.has(option.value)
+          return (
+            <DropdownMenuCheckboxItem
+              key={option.value}
+              checked={isSelected}
+              onCheckedChange={(checked) => {
+                // Logic is similar, but adapted for the new component
+                const newSelectedValues = new Set(selectedValues)
+                if (checked) {
+                  newSelectedValues.add(option.value)
+                } else {
+                  newSelectedValues.delete(option.value)
+                }
+                const filterValues = Array.from(newSelectedValues)
+                column?.setFilterValue(
+                  filterValues.length ? filterValues : undefined
                 )
-              })}
-            </CommandGroup>
-            {/* Show a "Clear" button if any filters are active */}
-            {selectedValues.size > 0 && (
-              <>
-                <CommandSeparator />
-                <CommandGroup>
-                  <CommandItem
-                    onSelect={() => column?.setFilterValue(undefined)}
-                    className="justify-center text-center"
-                  >
-                    Clear filters
-                  </CommandItem>
-                </CommandGroup>
-              </>
-            )}
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
+              }}
+            >
+              {option.icon && (
+                <option.icon className="mr-2 size-4 text-muted-foreground" />
+              )}
+              <span>{option.label}</span>
+            </DropdownMenuCheckboxItem>
+          )
+        })}
+
+        {/* --- CHANGED: A clearer way to add the "Clear" functionality --- */}
+        {selectedValues.size > 0 && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuCheckboxItem
+                onSelect={() => column?.setFilterValue(undefined)}
+                className="justify-center text-center text-red-500"
+            >
+                Clear filters
+            </DropdownMenuCheckboxItem>
+          </>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }

@@ -56,6 +56,7 @@ export function ChartAreaInteractive() {
   }, [isMobile])
 
   const processedData = React.useMemo(() => {
+    // ... (no changes in this block)
     const data = chartData
 
     switch (timeView) {
@@ -153,10 +154,12 @@ export function ChartAreaInteractive() {
         </CardAction>
       </CardHeader>
 
-      <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
+      {/* CHANGE 1: Enable horizontal scrolling on the chart's parent */}
+      <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6 overflow-x-auto">
         <ChartContainer
           config={chartConfig}
-          className="aspect-auto h-[250px] w-full"
+          // CHANGE 2: Give the chart a minimum width so it can overflow
+          className="aspect-auto h-[250px] min-w-[600px]"
         >
           <AreaChart data={processedData}>
             <defs>
